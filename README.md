@@ -1,4 +1,4 @@
-# Unofficial Veracode Greenlight for Java
+# Unofficial Veracode Greenlight for Java VS Code Extension
 
 ## Features
 
@@ -34,4 +34,4 @@ None
 
 ### 1.0.0
 
-Initial release of Unofficial Veracode Greenlight for Java
+Initial release of Unofficial Veracode Greenlight for Java VS Code Extension
