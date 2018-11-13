@@ -1,0 +1,73 @@
+{
+    "name": "vscode-unofficial-veracode-greenlight-java",
+    "displayName": "Unofficial Veracode Greenlight for Java",
+    "shortName": "Unofficial Greenlight",
+    "description": "Unofficial Veracode Greenlight for Java",
+    "version": "1.0.0",
+    "publisher": "ctcampbell-com",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ctcampbell/vscode-unofficial-veracode-greenlight-java"
+    },
+    "engines": {
+        "vscode": "^1.29.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.vsCodeGreenlightJava"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.vsCodeGreenlightJava",
+                "title": "Unofficial Veracode Greenlight for Java"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Unofficial Veracode Greenlight for Java Configuration",
+            "properties": {
+                "greenlightJava.sourceFolder": {
+                    "type": "string",
+                    "default": "src/main/java",
+                    "description": "Java source files root folder"
+                },
+                "greenlightJava.classFolder": {
+                    "type": "string",
+                    "default": "target/classes",
+                    "description": "Java compiled class files root folder"
+                },
+                "greenlightJava.authProfile": {
+                    "type": "string",
+                    "default": "default",
+                    "description": "Veracode authentication profile section from ~/.veracode/credentials"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "@types/request": "^2.48.1",
+        "@types/sjcl": "^1.0.28",
+        "tslint": "^5.8.0",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.21"
+    },
+    "dependencies": {
+        "configparser": "^0.2.6",
+        "jszip": "^3.1.5",
+        "request": "^2.88.0",
+        "sjcl": "^1.0.8"
+    }
+}
