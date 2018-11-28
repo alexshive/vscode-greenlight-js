@@ -35,3 +35,7 @@ None
 ### 1.0.0
 
 Initial release of Unofficial Veracode Greenlight for Java VS Code Extension
+
+### 1.1.0
+
+Better formatting of findings

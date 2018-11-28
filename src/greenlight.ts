@@ -6,7 +6,6 @@ import request = require('request');
 import veracodehmac = require('./veracode-hmac');
 import ConfigParser = require('configparser');
 import * as vscode from 'vscode';
-import { greenlightDiagnosticCollection } from './extension';
 import { setTimeout } from 'timers';
 
 const extensionId = 'ctcampbell-com.vscode-unofficial-veracode-greenlight-java';
@@ -30,9 +29,26 @@ const id = config.get(authProfile, 'veracode_api_key_id');
 const key = config.get(authProfile, 'veracode_api_key_secret'); 
 
 const diagnosticSource = extension.packageJSON.shortName;
+const greenlightDiagnosticCollection = vscode.languages.createDiagnosticCollection(diagnosticSource);
 
 const outputChannel = vscode.window.createOutputChannel(extension.packageJSON.shortName);
 const diagnosticsStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+
+interface SourceFile {
+	Line: string;
+}
+
+interface Files {
+	SourceFile: SourceFile;
+}
+
+interface Issue {
+	CWEId: string;
+	IssueType: string;
+	Severity: string;
+	DisplayText: string;
+	Files: Files;
+}
 
 export function runGreenlight() {
 	outputChannel.clear();
@@ -139,7 +155,7 @@ function handleUploadResponse(documentUri: vscode.Uri, resultsHref: string) {
 		} else if (httpResponse.statusCode === 200) {
 			sendLogMessage(`Scan status ${body.scan_status.toLowerCase()}`);
 			if (body.scan_status.toLowerCase() === 'success') {
-				let issues = body.results.TestResults.Issues.Issue || [];
+				let issues: Array<Issue> = body.results.TestResults.Issues.Issue || [];
 				handleDiagnostics(documentUri, issues);
 			} else {
 				scanFailed();
@@ -150,26 +166,40 @@ function handleUploadResponse(documentUri: vscode.Uri, resultsHref: string) {
 	});
 }
 
-function handleDiagnostics(documentUri: vscode.Uri, issues: any) {
-	let diagnostics: vscode.Diagnostic[] = [];
-
-	for (var i = 0; i < issues.length; i++) {
-		let issue = issues[i];
-		let line = parseInt(issue.Files.SourceFile.Line);
-
-		let range = new vscode.Range(line - 1 , 0, line - 1, Number.MAX_VALUE);
-		let severity = mapSeverityToVSCodeSeverity(issue.Severity);
-		let diagnostic = new vscode.Diagnostic(range, issue.IssueType, severity);
-		diagnostic.source = diagnosticSource;
-		let issueDisplayText = issue.DisplayText.replace(/(<([^>]+)>)/ig,'');
-		diagnostic.relatedInformation = [new vscode.DiagnosticRelatedInformation(new vscode.Location(documentUri, range), issueDisplayText)];
-		
-		diagnostics.push(diagnostic);
-	}
-	diagnostics.sort((a, b) => a.severity - b.severity);
-
+function handleDiagnostics(documentUri: vscode.Uri, issues: Array<Issue>) {
+	let diagnostics = [{
+		code: '',
+		message: 'cannot assign twice to immutable variable `x` cannot assign twice to immutable variable `x` cannot assign twice to immutable variable `x`',
+		range: new vscode.Range(new vscode.Position(3, 4), new vscode.Position(3, 10)),
+		severity: vscode.DiagnosticSeverity.Error,
+		source: 'test'
+	}, {
+		code: '',
+		message: 'cannot assign twice to immutable variable `x`',
+		range: new vscode.Range(new vscode.Position(3, 4), new vscode.Position(3, 10)),
+		severity: vscode.DiagnosticSeverity.Error,
+		source: 'test'
+	}];
 	greenlightDiagnosticCollection.set(documentUri, diagnostics);
-	sendLogMessage(`Scan complete ${diagnostics.length} issues found`);
+	if (issues.length) {
+		issues.sort((a, b) => parseInt(a.Severity) - parseInt(b.Severity));
+		let diagnostics = issues.map(issue => {
+			let line = parseInt(issue.Files.SourceFile.Line);
+			return {
+				code: '',
+				message: `CWE ${issue.CWEId} - Severity ${issue.Severity} - ${issue.IssueType}`,
+				range: new vscode.Range(line - 1 , 0, line - 1, Number.MAX_VALUE),
+				severity: mapSeverityToVSCodeSeverity(issue.Severity),
+				source: diagnosticSource
+			};
+		});
+		greenlightDiagnosticCollection.set(documentUri, diagnostics);
+		vscode.commands.executeCommand('workbench.action.problems.focus');
+	} else {
+		greenlightDiagnosticCollection.clear();
+	}
+
+	sendLogMessage(`Scan complete ${issues.length} issues found`);
 	diagnosticsStatusBarItem.hide();
 }
 

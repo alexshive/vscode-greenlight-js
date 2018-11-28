@@ -1,9 +1,9 @@
 {
     "name": "vscode-unofficial-veracode-greenlight-java",
     "displayName": "Unofficial Veracode Greenlight for Java VS Code Extension",
-    "shortName": "Unofficial Greenlight VS Code Extension",
+    "shortName": "Unofficial Greenlight",
     "description": "Unofficial Veracode Greenlight for Java VS Code Extension",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "ctcampbell-com",
     "repository": {
         "type": "git",
