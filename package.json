@@ -68,6 +68,7 @@
         "configparser": "^0.2.6",
         "jszip": "^3.1.5",
         "request": "^2.88.0",
-        "sjcl": "^1.0.8"
+        "sjcl": "^1.0.8",
+        "turndown": "^5.0.1"
     }
 }

@@ -5,6 +5,7 @@ import path = require('path');
 import request = require('request');
 import veracodehmac = require('./veracode-hmac');
 import ConfigParser = require('configparser');
+import TurndownService = require('turndown');
 import * as vscode from 'vscode';
 import { setTimeout } from 'timers';
 
@@ -33,6 +34,8 @@ const greenlightDiagnosticCollection = vscode.languages.createDiagnosticCollecti
 
 const outputChannel = vscode.window.createOutputChannel(extension.packageJSON.shortName);
 const diagnosticsStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+
+const turndownService = new TurndownService();
 
 interface SourceFile {
 	Line: string;
@@ -185,10 +188,12 @@ function handleDiagnostics(documentUri: vscode.Uri, issues: Array<Issue>) {
 		issues.sort((a, b) => parseInt(a.Severity) - parseInt(b.Severity));
 		let diagnostics = issues.map(issue => {
 			let line = parseInt(issue.Files.SourceFile.Line);
+			let range = new vscode.Range(line - 1 , 0, line - 1, Number.MAX_VALUE);
+			let displayMD = turndownService.turndown(issue.DisplayText);
 			return {
 				code: '',
-				message: `CWE ${issue.CWEId} - Severity ${issue.Severity} - ${issue.IssueType}`,
-				range: new vscode.Range(line - 1 , 0, line - 1, Number.MAX_VALUE),
+				message: `[CWE ${issue.CWEId}] \n[${mapSeverityNumberToText(issue.Severity)}] \n${issue.IssueType}`,
+				range: range,
 				severity: mapSeverityToVSCodeSeverity(issue.Severity),
 				source: diagnosticSource
 			};
@@ -205,7 +210,7 @@ function handleDiagnostics(documentUri: vscode.Uri, issues: Array<Issue>) {
 
 function makeTimestamp(): string {
 	let now = new Date();
-	return `[${now.toTimeString()}]`;
+	return `[${now.toLocaleTimeString()}]`;
 }
 
 function sendLogMessage(message: string) {
@@ -218,6 +223,18 @@ function mapSeverityToVSCodeSeverity(sev: string): vscode.DiagnosticSeverity {
 		case '4': return vscode.DiagnosticSeverity.Error;
 		case '3': return vscode.DiagnosticSeverity.Warning;
 		default: return vscode.DiagnosticSeverity.Information;
+	}
+}
+
+function mapSeverityNumberToText(sev: string): string {
+	switch (sev) {
+		case '5': return 'Very High';
+		case '4': return 'High';
+		case '3': return 'Medium';
+		case '2': return 'Low';
+		case '1': return 'Very Low';
+		case '0': return 'Informational';
+		default: return '';
 	}
 }
 
