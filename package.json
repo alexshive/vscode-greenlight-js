@@ -60,15 +60,15 @@
         "@types/node": "^8.10.25",
         "@types/request": "^2.48.1",
         "@types/sjcl": "^1.0.28",
-        "tslint": "^5.8.0",
+        "tslint": "^5.12.1",
         "typescript": "^2.6.1",
-        "vscode": "^1.1.21"
+        "vscode": "^1.1.29"
     },
     "dependencies": {
         "configparser": "^0.2.6",
         "jszip": "^3.1.5",
         "request": "^2.88.0",
         "sjcl": "^1.0.8",
-        "turndown": "^5.0.1"
+        "turndown": "^5.0.3"
     }
 }

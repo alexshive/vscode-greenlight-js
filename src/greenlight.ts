@@ -192,7 +192,7 @@ function handleDiagnostics(documentUri: vscode.Uri, issues: Array<Issue>) {
 			let displayMD = turndownService.turndown(issue.DisplayText);
 			return {
 				code: '',
-				message: `[CWE ${issue.CWEId}] \n[${mapSeverityNumberToText(issue.Severity)}] \n${issue.IssueType}`,
+				message: `${mapSeverityNumberToText(issue.Severity)} - CWE ${issue.CWEId} - ${issue.IssueType}\n${displayMD}`,
 				range: range,
 				severity: mapSeverityToVSCodeSeverity(issue.Severity),
 				source: diagnosticSource
